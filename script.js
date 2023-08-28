@@ -1,16 +1,23 @@
-const loadPhone = async (brand) => {
+const loadPhone = async (brand, isShowAll) => {
   const response = await fetch(
     `https://openapi.programming-hero.com/api/phones?search=${brand}`
   );
   const data = await response.json();
   const phones = data.data;
-  displayPhones(phones);
+  displayPhones(phones, isShowAll);
 };
 
 const cardContainer = document.getElementById("card-container");
 
-const displayPhones = (phones) => {
+const displayPhones = (phones, isShowAll) => {
   cardContainer.innerHTML = "";
+  const showAllBtn = document.getElementById("show-all-btn");
+
+  if (phones.length > 12 && !isShowAll) {
+    phones = phones.slice(0, 12);
+    showAllBtn.classList.remove("hidden");
+  } else showAllBtn.classList.add("hidden");
+
   phones.forEach((phone) => {
     const cardDiv = document.createElement("div");
     cardDiv.classList.add(
@@ -27,31 +34,48 @@ const displayPhones = (phones) => {
 
     const phoneCard = `
         <img class="p-8 mx-auto rounded-t-lg" src='${image}' alt="product image" />
-      <div class="px-5 pb-5">
-        <a href="#">
-          <h5 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
+      <div class="px-5 pb-5 text-center space-y-3">
+          <h4 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             ${phone_name}
-          </h5>
-        </a>
+          </h4>
+          <p>There are many variations of passages of available, but the majority have suffered</p>
 
-          <span class="text-3xl font-bold text-gray-900 dark:text-white">$599</span>
-          <a href="#"
-            class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">Add
-            to cart</a>
+          <h4 class="text-2xl font-bold text-gray-900 dark:text-white">$599</h4>
+          <button onclick="handleShowDetails(${phone})"
+            class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">Show Details</button>
       </div>
     `;
 
     cardDiv.innerHTML = phoneCard;
     cardContainer.appendChild(cardDiv);
   });
+  // Hide loading spinner
+  toggleLoadingSpinner(false);
 };
 
-const handleSearch = () => {
+const handleSearch = (isShowAll) => {
+  // Show loading spinner
+  toggleLoadingSpinner(true);
   const searchField = document.getElementById("search-field");
-  // console.log(searchField);
+
   const brand = searchField.value;
-  console.log(brand);
-  loadPhone(brand);
+  loadPhone(brand, isShowAll);
+  // searchField.value = "";
 };
 
-// loadPhone("samsung");
+const toggleLoadingSpinner = (isLoading) => {
+  const loadingSpinner = document.getElementById("loading-spinner");
+  isLoading
+    ? loadingSpinner.classList.remove("hidden")
+    : loadingSpinner.classList.add("hidden");
+};
+
+const handleShowAll = (isShowAll) => {
+  handleSearch(true);
+};
+
+const handleShowDetails = (phone) => {
+  console.log(phone);
+};
+
+loadPhone("iphone");
